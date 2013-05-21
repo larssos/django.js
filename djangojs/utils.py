@@ -204,12 +204,14 @@ class ContextSerializer(object):
             'permissions': tuple(),
         }
         if 'django.contrib.sessions.middleware.SessionMiddleware' in settings.MIDDLEWARE_CLASSES:
+            if hasattr(request.user, 'username'):
+                data['user']['username'] = request.user.username
+            if hasattr(request.user, 'get_all_permissions'):
+                data['user']['permissions'] = request.user.get_all_permissions()
             data['user'].update({
-                'username': request.user.username,
                 'is_authenticated': request.user.is_authenticated(),
                 'is_staff': request.user.is_staff,
                 'is_superuser': request.user.is_superuser,
-                'permissions': tuple(request.user.get_all_permissions())
             })
 
 
