@@ -5,6 +5,7 @@ import json
 from django.conf import global_settings
 from django.contrib.auth.management import create_permissions
 from django.contrib.auth.models import User
+from django.contrib.auth.tests.utils import skipIfCustomUser
 from django.contrib.contenttypes.management import update_contenttypes
 from django.core.urlresolvers import reverse
 from django.db.models import get_app
@@ -44,18 +45,21 @@ class ContextTestMixin(object):
             request.user = User.objects.create_user('user', 'fake@noirbizarre.info', 'password')
         return self.get_result(request)
 
+    @skipIfCustomUser
     def test_static_url(self):
         '''STATIC_URL should be in context'''
         result = self.process_request()
         self.assertIn('STATIC_URL', result)
         self.assertEqual(result['STATIC_URL'], settings.STATIC_URL)
 
+    @skipIfCustomUser
     def test_media_url(self):
         '''MEDIA_URL should be in context'''
         result = self.process_request()
         self.assertIn('MEDIA_URL', result)
         self.assertEqual(result['MEDIA_URL'], settings.MEDIA_URL)
 
+    @skipIfCustomUser
     @override_settings(LANGUAGE_CODE='en-us')
     def test_language_code(self):
         '''LANGUAGE_CODE should be in context'''
@@ -63,6 +67,7 @@ class ContextTestMixin(object):
         self.assertIn('LANGUAGE_CODE', result)
         self.assertEqual(result['LANGUAGE_CODE'], 'fr')
 
+    @skipIfCustomUser
     @override_settings(LANGUAGE_CODE='en-us')
     def test_language_code_default(self):
         '''Should handle the default LANGUAGE_CODE="en-us"'''
@@ -70,12 +75,14 @@ class ContextTestMixin(object):
         self.assertIn('LANGUAGE_CODE', result)
         self.assertEqual(result['LANGUAGE_CODE'], 'en-us')
 
+    @skipIfCustomUser
     def test_language_bidi(self):
         '''LANGUAGE_BIDI should be in context'''
         result = self.process_request()
         self.assertIn('LANGUAGE_BIDI', result)
         self.assertEqual(result['LANGUAGE_BIDI'], translation.get_language_bidi())
 
+    @skipIfCustomUser
     @override_settings(LANGUAGE_CODE='en-us')
     def test_language_name(self):
         '''LANGUAGE_NAME should be in context'''
@@ -83,6 +90,7 @@ class ContextTestMixin(object):
         self.assertIn('LANGUAGE_NAME', result)
         self.assertEqual(result['LANGUAGE_NAME'], 'French')
 
+    @skipIfCustomUser
     @override_settings(LANGUAGE_CODE='en-us')
     def test_language_name_en_us(self):
         '''LANGUAGE_NAME should handle en-us special case'''
@@ -93,6 +101,7 @@ class ContextTestMixin(object):
         # language = translation.get_language_info(code)
         self.assertEqual(result['LANGUAGE_NAME'], 'English')
 
+    @skipIfCustomUser
     def test_language_name_local(self):
         '''LANGUAGE_NAME_LOCAL should be in context'''
         result = self.process_request()
@@ -102,6 +111,7 @@ class ContextTestMixin(object):
         language = translation.get_language_info(code)
         self.assertEqual(result['LANGUAGE_NAME_LOCAL'], language['name_local'])
 
+    @skipIfCustomUser
     @override_settings(DEBUG=True, LANGUAGE_CODE=global_settings.LANGUAGE_CODE)
     def test_language_debug(self):
         '''LANGUAGE_* should be present even in debug with default language'''
@@ -111,6 +121,7 @@ class ContextTestMixin(object):
         self.assertIn('LANGUAGE_NAME', result)
         self.assertIn('LANGUAGE_NAME_LOCAL', result)
 
+    @skipIfCustomUser
     @override_settings(LANGUAGE_CODE='en-us')
     def test_languages(self):
         '''LANGUAGES should be in context'''
@@ -121,6 +132,7 @@ class ContextTestMixin(object):
         for code, name in settings.LANGUAGES:
             self.assertEqual(languages[code], name)
 
+    @skipIfCustomUser
     @override_settings(LANGUAGE_CODE='en-us')
     def test_languages_localized(self):
         '''LANGUAGES should be localized'''
@@ -132,12 +144,14 @@ class ContextTestMixin(object):
         for code, name in settings.LANGUAGES:
             self.assertEqual(languages[code], translation.ugettext_lazy(name))
 
+    @skipIfCustomUser
     def test_any_custom_context_processor(self):
         '''Any custom context processor should be in context'''
         result = self.process_request()
         self.assertIn('CUSTOM', result)
         self.assertEqual(result['CUSTOM'], 'CUSTOM_VALUE')
 
+    @skipIfCustomUser
     def test_user(self):
         '''Basic user informations should be in context'''
         result = self.process_request()
@@ -153,6 +167,7 @@ class ContextTestMixin(object):
         self.assertIn('permissions', result['user'])
         self.assertTrue(isinstance(result['user']['permissions'], (list, tuple)))
 
+    @skipIfCustomUser
     def test_super_user(self):
         '''Basic superuser informations should be in context'''
         result = self.process_request(True)
@@ -162,6 +177,7 @@ class ContextTestMixin(object):
         self.assertTrue(result['user']['is_staff'])
         self.assertTrue(result['user']['is_superuser'])
 
+    @skipIfCustomUser
     def test_user_permissions(self):
         '''Should list permissions'''
         self.fake_permissions()
@@ -177,6 +193,7 @@ class ContextTestMixin(object):
         for perm in ('do_something', 'do_something_else'):
             self.assertIn('fake.%s' % perm, result['user']['permissions'])
 
+    @skipIfCustomUser
     def test_user_without_permissions(self):
         '''Should not list denied permissions'''
         result = self.process_request()
@@ -184,6 +201,7 @@ class ContextTestMixin(object):
         self.assertTrue(isinstance(result['user']['permissions'], (list, tuple)))
         self.assertEqual(len(result['user']['permissions']), 0)
 
+    @skipIfCustomUser
     def fake_permissions(self):
         ''' Add fake app missing content types and permissions'''
         app = get_app('fake')

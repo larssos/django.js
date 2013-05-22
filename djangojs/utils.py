@@ -149,6 +149,8 @@ class LazyJsonEncoder(DjangoJSONEncoder):
     def default(self, obj):
         if isinstance(obj, Promise):
             return force_text(obj)
+        elif isinstance(obj, set):
+            return list(obj)
         return super(LazyJsonEncoder, self).default(obj)
 
 
