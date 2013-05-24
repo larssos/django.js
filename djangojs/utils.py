@@ -217,9 +217,7 @@ class ContextSerializer(object):
             if hasattr(request.user, 'is_superuser'):
                 data['user']['is_superuser'] = request.user.is_superuser
 
-            data['user'].update({
-                'is_authenticated': request.user.is_authenticated(),
-            })
+            data['user']['is_authenticated'] = request.user.is_authenticated()
 
 
 class StorageGlobber(object):
