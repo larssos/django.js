@@ -208,12 +208,17 @@ class ContextSerializer(object):
         if 'django.contrib.sessions.middleware.SessionMiddleware' in settings.MIDDLEWARE_CLASSES:
             if hasattr(request.user, 'username'):
                 data['user']['username'] = request.user.username
+            elif hasattr(request.user, 'get_username'):  # Must be present in default AbstractBaseUser
+                data['user']['get_username'] = request.user.get_username()
             if hasattr(request.user, 'get_all_permissions'):
                 data['user']['permissions'] = request.user.get_all_permissions()
+            if hasattr(request.user, 'is_staff'):
+                data['user']['is_staff'] = request.user.is_staff
+            if hasattr(request.user, 'is_superuser'):
+                data['user']['is_superuser'] = request.user.is_superuser
+
             data['user'].update({
                 'is_authenticated': request.user.is_authenticated(),
-                'is_staff': request.user.is_staff,
-                'is_superuser': request.user.is_superuser,
             })
 
 
